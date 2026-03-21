@@ -118,7 +118,7 @@ export default function CanvasScreen() {
             style={styles.connectBtn}
             onPress={() => router.push('/(tabs)/settings')}
           >
-            <Text style={styles.connectBtnText}>Go to Settings</Text>
+            <Text style={styles.connectBtnText}>Go to your settings</Text>
             <Ionicons name="arrow-forward" size={16} color="#fff" />
           </TouchableOpacity>
         </View>
