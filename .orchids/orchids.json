@@ -1,5 +1,7 @@
 {
-  "startupCommands": [],
-  "projectId": "18301e82-e7c0-43ca-bc39-c592950c2459",
+  "startupCommands": [
+    "npx expo start --web --port 8081 --no-dev"
+  ],
+  "projectId": "bcd3a25b-83f3-4471-9b0a-45e8fff802b3",
   "templateId": "any"
 }
