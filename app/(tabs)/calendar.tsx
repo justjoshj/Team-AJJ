@@ -15,8 +15,8 @@ import { Card } from '../../src/components/Card';
 import { CalendarEvent, Reminder } from '../../src/types';
 import { MOCK_CALENDAR_EVENTS } from '../../src/services/mockData';
 import { appStore } from '../../src/store/appStore';
-
-const VIEWS = ['Week', 'Events', 'Reminders'] as const;
+import { Calendar } from 'react-native-calendars';
+const VIEWS = ['Month', 'Week','Events', 'Reminders'] as const;
 type ViewMode = typeof VIEWS[number];
 
 const PRIORITY_COLORS = {
@@ -26,7 +26,7 @@ const PRIORITY_COLORS = {
 export default function CalendarScreen() {
   const insets = useSafeAreaInsets();
   const state = useStore();
-  const [view, setView] = useState<ViewMode>('Week');
+  const [view, setView] = useState<ViewMode>('Month');
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [addReminderOpen, setAddReminderOpen] = useState(false);
 
@@ -113,51 +113,137 @@ export default function CalendarScreen() {
         ))}
       </View>
 
-      {view === 'Week' && (
-        <>
-          {/* Week Strip */}
-          <View style={styles.weekStrip}>
-            {weekDays.map((day) => {
-              const hasEvent = allEvents.some((e) => isSameDay(e.startDate, day));
-              const sel = isSameDay(day, selectedDay);
-              const tod = isToday(day);
-              return (
-                <TouchableOpacity
-                  key={day.toISOString()}
-                  style={[styles.dayBtn, sel && styles.dayBtnSel]}
-                  onPress={() => setSelectedDay(day)}
-                >
-                  <Text style={[styles.dayLetter, sel && styles.dayLetterSel, tod && !sel && styles.dayLetterToday]}>
-                    {format(day, 'EEE')[0]}
-                  </Text>
-                  <View style={[styles.dayNum, sel && styles.dayNumSel, tod && !sel && styles.dayNumToday]}>
-                    <Text style={[styles.dayNumText, sel && styles.dayNumTextSel, tod && !sel && { color: COLORS.indigo }]}>
-                      {format(day, 'd')}
-                    </Text>
-                  </View>
-                  {hasEvent && <View style={[styles.eventDotSmall, sel && { backgroundColor: '#fff' }]} />}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+    {view === 'Month' && (
+  <>
+    <View style={{ paddingHorizontal: 12 }}>
+      <Calendar
+        onDayPress={(day) => {
+          setSelectedDay(new Date(day.dateString));
+        }}
+        markedDates={{
+          ...allEvents.reduce((acc, event) => {
+            const date = event.startDate.toISOString().split('T')[0];
+            acc[date] = {
+              marked: true,
+              dotColor: event.color || COLORS.indigo,
+            };
+            return acc;
+          }, {} as Record<string, any>),
+          [selectedDay.toISOString().split('T')[0]]: {
+            selected: true,
+            selectedColor: COLORS.indigo,
+          },
+        }}
+        theme={{
+          backgroundColor: COLORS.bg0,
+          calendarBackground: COLORS.bg0,
+          textSectionTitleColor: COLORS.textMuted,
+          dayTextColor: COLORS.textPrimary,
+          todayTextColor: COLORS.indigo,
+          monthTextColor: COLORS.textPrimary,
+          arrowColor: COLORS.indigo,
+        }}
+      />
+    </View>
 
-          {/* Selected Day Events */}
-          <Text style={styles.dayHeader}>
-            {getDayLabel(selectedDay)} · {selectedDayEvents.length} event{selectedDayEvents.length !== 1 ? 's' : ''}
-          </Text>
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-            {selectedDayEvents.length === 0 ? (
-              <View style={styles.empty}>
-                <Ionicons name="calendar-outline" size={40} color={COLORS.textMuted} />
-                <Text style={styles.emptyText}>No events this day</Text>
-              </View>
-            ) : (
-              selectedDayEvents.map((e) => <EventCard key={e.id} event={e} />)
-            )}
-            <View style={{ height: 32 }} />
-          </ScrollView>
-        </>
+    <Text style={styles.dayHeader}>
+      {getDayLabel(selectedDay)} · {selectedDayEvents.length} event
+      {selectedDayEvents.length !== 1 ? 's' : ''}
+    </Text>
+
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scroll}
+    >
+      {selectedDayEvents.length === 0 ? (
+        <View style={styles.empty}>
+          <Ionicons name="calendar-outline" size={40} color={COLORS.textMuted} />
+          <Text style={styles.emptyText}>No events this day</Text>
+        </View>
+      ) : (
+        selectedDayEvents.map((e) => <EventCard key={e.id} event={e} />)
       )}
+      <View style={{ height: 32 }} />
+    </ScrollView>
+  </>
+)}
+
+{view === 'Week' && (
+  <>
+    <View style={styles.weekStrip}>
+      {weekDays.map((day) => {
+        const hasEvent = allEvents.some((e) => isSameDay(e.startDate, day));
+        const sel = isSameDay(day, selectedDay);
+        const tod = isToday(day);
+
+        return (
+          <TouchableOpacity
+            key={day.toISOString()}
+            style={[styles.dayBtn, sel && styles.dayBtnSel]}
+            onPress={() => setSelectedDay(day)}
+          >
+            <Text
+              style={[
+                styles.dayLetter,
+                sel && styles.dayLetterSel,
+                tod && !sel && styles.dayLetterToday,
+              ]}
+            >
+              {format(day, 'EEE')[0]}
+            </Text>
+
+            <View
+              style={[
+                styles.dayNum,
+                sel && styles.dayNumSel,
+                tod && !sel && styles.dayNumToday,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.dayNumText,
+                  sel && styles.dayNumTextSel,
+                  tod && !sel && { color: COLORS.indigo },
+                ]}
+              >
+                {format(day, 'd')}
+              </Text>
+            </View>
+
+            {hasEvent && (
+              <View
+                style={[
+                  styles.eventDotSmall,
+                  sel && { backgroundColor: '#fff' },
+                ]}
+              />
+            )}
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+
+    <Text style={styles.dayHeader}>
+      {getDayLabel(selectedDay)} · {selectedDayEvents.length} event
+      {selectedDayEvents.length !== 1 ? 's' : ''}
+    </Text>
+
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scroll}
+    >
+      {selectedDayEvents.length === 0 ? (
+        <View style={styles.empty}>
+          <Ionicons name="calendar-outline" size={40} color={COLORS.textMuted} />
+          <Text style={styles.emptyText}>No events this day</Text>
+        </View>
+      ) : (
+        selectedDayEvents.map((e) => <EventCard key={e.id} event={e} />)
+      )}
+      <View style={{ height: 32 }} />
+    </ScrollView>
+  </>
+)}
 
       {view === 'Events' && (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
