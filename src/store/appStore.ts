@@ -33,8 +33,7 @@ interface AppState {
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-  canvasUrl: '',
-  canvasToken: '',
+  canvasFeedUrl: '',
   emailConnected: false,
   calendarConnected: false,
   notificationsEnabled: true,
@@ -60,6 +59,15 @@ class AppStore {
     return () => this.listeners.delete(listener);
   }
 
+  saveEmailData(emails: any[]) {
+    this.state.emails = emails;
+    this.emit();
+  }
+
+  private emit() {
+    this.listeners.forEach(l => l());
+  }
+  
   private notify() {
     this.listeners.forEach((l) => l());
   }

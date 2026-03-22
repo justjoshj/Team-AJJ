@@ -19,13 +19,11 @@ export interface CanvasAssignment {
   title: string;
   description: string;
   dueDate: Date | null;
-  
   pointsPossible: number | null;
   submissionType: string[];
   submitted: boolean;
   grade: string | null;
   url: string;
-priority?: 'low'|'medium'|'high';
 }
 
 export interface CanvasCourse {
@@ -40,27 +38,25 @@ export interface CalendarEvent {
   title: string;
   startDate: Date;
   endDate: Date;
-  
   allDay: boolean;
   location?: string;
   notes?: string;
   color: string;
   source: 'personal' | 'canvas' | 'email';
-priority?: 'low' | 'medium' | 'high';}
+}
 
 export interface Reminder {
   id: string;
   title: string;
   dueDate: Date;
   completed: boolean;
-
+  priority: 'low' | 'medium' | 'high';
   relatedId?: string;
   relatedType?: 'assignment' | 'email' | 'event';
-  priority: 'low' | 'medium' | 'high';}
+}
 
 export interface AppSettings {
-  canvasUrl: string;
-  canvasToken: string;
+  canvasFeedUrl: string;
   emailConnected: boolean;
   calendarConnected: boolean;
   notificationsEnabled: boolean;
