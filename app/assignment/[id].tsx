@@ -17,26 +17,47 @@ export default function AssignmentDetailScreen() {
   const state = useStore();
   const a = state.assignments.find((x) => x.id === id);
 
-  if (!a) {
-    return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color={COLORS.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.notFound}>Assignment not found</Text>
-      </View>
-    );
-  }
+if (!a) {
+  return (
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <Ionicons name="chevron-back" size={24} color={COLORS.textPrimary} />
+      </TouchableOpacity>
+      <Text style={styles.notFound}>Assignment not found</Text>
+    </View>
+  );
+}
 
-  const dueLabel = a.dueDate
-    ? isToday(a.dueDate) ? 'Due Today'
-    : isTomorrow(a.dueDate) ? 'Due Tomorrow'
+const dueLabel = a.dueDate
+  ? isToday(a.dueDate)
+    ? 'Due Today'
+    : isTomorrow(a.dueDate)
+    ? 'Due Tomorrow'
     : `Due ${format(a.dueDate, 'EEEE, MMMM d · h:mm a')}`
-    : 'No Due Date';
+  : 'No Due Date';
 
-  const urgentColor = a.dueDate && isToday(a.dueDate) ? COLORS.rose
-    : a.dueDate && differenceInHours(a.dueDate, new Date()) < 48 ? COLORS.amber
-    : COLORS.textMuted;
+const urgentColor = a.dueDate && isToday(a.dueDate)
+  ? COLORS.rose
+  : a.dueDate && differenceInHours(a.dueDate, new Date()) < 48
+  ? COLORS.amber
+  : COLORS.textMuted;
+
+const assignmentPriority: 'high' | 'medium' | 'low' =
+  a.priority ??
+  (!a.dueDate
+    ? 'low'
+    : isToday(a.dueDate)
+    ? 'high'
+    : differenceInHours(a.dueDate, new Date()) < 48
+    ? 'medium'
+    : 'low');
+
+const priorityColor =
+  assignmentPriority === 'high'
+    ? COLORS.rose
+    : assignmentPriority === 'medium'
+    ? COLORS.amber
+    : COLORS.sky;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
